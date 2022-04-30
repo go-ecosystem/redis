@@ -1,13 +1,18 @@
 SHELL := /bin/bash
 BASEDIR = $(shell pwd)
 
-all: fmt mod lint test
+all: fmt imports mod lint test
+first:
+	go install golang.org/x/tools/cmd/goimports@latest
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 fmt:
 	gofmt -w .
+imports:
+	goimports -w .
 mod:
 	go mod tidy
 lint:
-	golangci-lint run
+	golangci-lint run -c .golangci.yml
 .PHONY: test
 test: mod
 	sh scripts/test.sh
@@ -18,6 +23,7 @@ redis:
 	sh scripts/redis.sh
 help:
 	@echo "fmt - format the source code"
+	@echo "imports - goimports"
 	@echo "mod - go mod tidy"
 	@echo "lint - run golangci-lint"
 	@echo "test - unit test"
